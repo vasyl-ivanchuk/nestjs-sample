@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  mongodb:
+    image: mongo
+    environment:
+      - MONGODB_DATABASE="orders"
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+
+  orders:
+    build: ./orders
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=mongodb
+    ports:
+      - '3000:3000'
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
