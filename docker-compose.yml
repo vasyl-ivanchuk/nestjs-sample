@@ -9,7 +9,6 @@ services:
       - '27017:27017'
     expose:
       - '27017'
-
   redis:
     image: redis
     ports:
@@ -29,10 +28,22 @@ services:
       - mongodb
       - redis
       - payments
+      - delivery
     depends_on:
       - mongodb
       - redis
       - payments
+      - delivery
+
+  delivery:
+    build: ./delivery
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=mongodb
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
 
   payments:
     build: ./payments
@@ -42,4 +53,4 @@ services:
     links:
       - redis
     depends_on:
-      - redis      
+      - redis
