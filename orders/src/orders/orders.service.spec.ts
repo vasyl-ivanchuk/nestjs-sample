@@ -9,7 +9,8 @@ describe('Order Service', () => {
 
     const orderModel = {
         create() { },
-        findById() { }
+        findById() { },
+        findByIdAndUpdate() { }
     };
 
     beforeAll(async () => {
@@ -56,6 +57,18 @@ describe('Order Service', () => {
         it('should return founded order', async () => {
             const order = await service.findById('5c20dba8484eff22c08712e3');
             expect(order).toBe(order);
+        });
+    });
+
+    describe('cancel', () => {
+        beforeEach(() => {
+            spyOn(orderModel, 'findByIdAndUpdate');
+        });
+
+        it('should update the status of the order to cancelled', async () => {
+            await service.cancel('5c20dba8484eff22c08712e3');
+            expect(orderModel.findByIdAndUpdate).toHaveBeenCalledWith('5c20dba8484eff22c08712e3',
+                { status: OrderStatus.Cancelled });
         });
     });
 });

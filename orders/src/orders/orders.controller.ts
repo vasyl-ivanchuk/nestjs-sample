@@ -1,7 +1,8 @@
-import { Controller, Post, Get, Param, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Post, Get, Param, HttpStatus, HttpException, Put } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrderDto } from './interfaces/order-dto.interface';
 import { Order } from './schemas/order.schema';
+import { OrderStatus } from './enums/order-status.enum';
 
 @Controller('orders')
 export class OrdersController {
@@ -25,5 +26,23 @@ export class OrdersController {
             throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
         }
         return { id, status: order.status };
+    }
+
+    @Put(':id/cancel')
+    async cancel(@Param('id') id): Promise<void> {
+        let order: Order;
+        try {
+            order = await this.ordersService.findById(id);
+        } catch {
+            throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+        }
+        if (!order) {
+            throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+        }
+        if (order.status === OrderStatus.Delivered) {
+            throw new HttpException('Delivered order cannot be canceled.', HttpStatus.BAD_REQUEST);
+        }
+        
+        await this.ordersService.cancel(id);
     }
 }

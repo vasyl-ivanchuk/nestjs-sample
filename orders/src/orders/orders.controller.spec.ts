@@ -10,7 +10,8 @@ describe('Order Controller', () => {
 
   const ordersService = {
     create() { },
-    findById() { }
+    findById() { },
+    cancel() { }
   };
 
   beforeAll(async () => {
@@ -60,13 +61,48 @@ describe('Order Controller', () => {
       );
     });
 
-    describe('when exception occured', () => {
-      it('should throw BadRequestException', async () => {
-        spyOn(ordersService, 'findById').and.throwError('');
-        await expect(controller.getStatus('5c20dba8484eff22c08712e3')).rejects.toEqual(
-          new HttpException('Bad Request', HttpStatus.BAD_REQUEST),
-        );
+    it('should throw BadRequestException if exception ocurred', async () => {
+      spyOn(ordersService, 'findById').and.throwError('');
+      await expect(controller.getStatus('5c20dba8484eff22c08712e3')).rejects.toEqual(
+        new HttpException('Bad Request', HttpStatus.BAD_REQUEST),
+      );
+    });
+  });
+
+  describe('cancel', () => {
+    it('should cancel an order if exists', async () => {
+      spyOn(ordersService, 'findById').and.returnValue({
+        id: '5c20dba8484eff22c08712e3',
+        status: OrderStatus.Created,
       });
+      spyOn(ordersService, 'cancel');
+
+      await controller.cancel('5c20dba8484eff22c08712e3');
+      expect(ordersService.cancel).toHaveBeenCalledWith('5c20dba8484eff22c08712e3');
+    });
+
+    it('should throw HttpException if no order found', async () => {
+      spyOn(ordersService, 'findById').and.returnValue(null);
+      await expect(controller.cancel('5c20dba8484eff22c08712e3')).rejects.toEqual(
+        new HttpException('Not Found', HttpStatus.NOT_FOUND),
+      );
+    });
+
+    it('should throw HttpException if order was already delivered', async () => {
+      spyOn(ordersService, 'findById').and.returnValue({
+        id: '5c20dba8484eff22c08712e3',
+        status: OrderStatus.Delivered,
+      });
+      await expect(controller.cancel('5c20dba8484eff22c08712e3')).rejects.toEqual(
+        new HttpException('Delivered order cannot be canceled.', HttpStatus.BAD_REQUEST),
+      );
+    });
+
+    it('should throw BadRequestException if exception ocurred', async () => {
+      spyOn(ordersService, 'findById').and.throwError('');
+      await expect(controller.cancel('5c20dba8484eff22c08712e3')).rejects.toEqual(
+        new HttpException('Bad Request', HttpStatus.BAD_REQUEST),
+      );
     });
   });
 });
