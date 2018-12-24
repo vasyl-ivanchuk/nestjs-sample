@@ -59,5 +59,14 @@ describe('Order Controller', () => {
         new HttpException('Not Found', HttpStatus.NOT_FOUND),
       );
     });
+
+    describe('when exception occured', () => {
+      it('should throw BadRequestException', async () => {
+        spyOn(ordersService, 'findById').and.throwError('');
+        await expect(controller.getStatus('5c20dba8484eff22c08712e3')).rejects.toEqual(
+          new HttpException('Bad Request', HttpStatus.BAD_REQUEST),
+        );
+      });
+    });
   });
 });
