@@ -1,17 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, HttpException } from '@nestjs/common';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { OrderStatus } from './enums/order-status.enum';
+import { PaymentStatus } from './enums/payment-status.enum';
+import { HttpStatus, HttpException } from '@nestjs/common';
 
-describe('Order Controller', () => {
+describe('Orders Controller', () => {
   let module: TestingModule;
   let controller: OrdersController;
 
   const ordersService = {
     create() { },
-    findById() { },
-    cancel() { }
+    cancel() { },
+    confirm() { },
+    findById() { }
   };
 
   beforeAll(async () => {
@@ -103,6 +105,30 @@ describe('Order Controller', () => {
       await expect(controller.cancel('5c20dba8484eff22c08712e3')).rejects.toEqual(
         new HttpException('Bad Request', HttpStatus.BAD_REQUEST),
       );
+    });
+  });
+
+  describe('onPaymentProcessed', () => {
+    it('should confirm order if it was confirmed', async () => {
+      spyOn(ordersService, 'confirm');
+
+      await controller.onPaymentProcessed({
+        orderId: '5c20dba8484eff22c08712e3',
+        response: PaymentStatus.Confirmed
+      });
+
+      expect(ordersService.confirm).toHaveBeenCalledWith('5c20dba8484eff22c08712e3');
+    });
+
+    it('should cancel order if it was declined', async () => {
+      spyOn(ordersService, 'cancel');
+
+      await controller.onPaymentProcessed({
+        orderId: '5c20dba8484eff22c08712e3',
+        response: PaymentStatus.Declined
+      });
+
+      expect(ordersService.cancel).toHaveBeenCalledWith('5c20dba8484eff22c08712e3');
     });
   });
 });
