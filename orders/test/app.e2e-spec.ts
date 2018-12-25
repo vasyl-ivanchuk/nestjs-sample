@@ -113,7 +113,7 @@ describe('AppController (e2e)', () => {
         .expect(400);
     });
 
-    it('returns 400 for not valid delivered order', () => {
+    it('returns 400 for delivered order', () => {
       return request(app.getHttpServer())
         .put('/orders/5c21586dc27679522e405c2f/cancel')
         .expect(400);

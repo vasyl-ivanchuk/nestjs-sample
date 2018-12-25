@@ -23,10 +23,14 @@ export class OrdersService {
   }
 
   async cancel(id: string): Promise<void> {
-    await this.orderModel.findByIdAndUpdate(id, { status: OrderStatus.Cancelled });
+    await this.updateStatus(id, OrderStatus.Cancelled);
   }
 
   async confirm(id: string): Promise<void> {
-    await this.orderModel.findByIdAndUpdate(id, { status: OrderStatus.Confirmed });
+    await this.updateStatus(id, OrderStatus.Confirmed);
+  }
+
+  private async updateStatus(id: string, status: OrderStatus): Promise<void> {
+    await this.orderModel.findByIdAndUpdate(id, { status });
   }
 }
