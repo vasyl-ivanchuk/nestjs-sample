@@ -18,6 +18,10 @@ docker-compose up
 - to run the app using built docker images use next commands:
 
 ```
-docker-compose -f docker-compose.production.yaml build
-docker-compose -f docker-compose.production.yaml up
+docker-compose -f docker-compose.production.yml up
 ```
+
+Endpoints:
+- http://localhost:3000/orders POST - create an order
+- http://localhost:3000/orders/:orderId/status GET - check order status
+- http://localhost:3000/orders/:orderId/cancel PUT - cancel an order
